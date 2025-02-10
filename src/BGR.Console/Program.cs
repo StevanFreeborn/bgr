@@ -1,12 +1,40 @@
-﻿using System.Reflection;
+﻿Log.Logger = new LoggerConfiguration()
+  .WriteTo.File(
+    formatter: new CompactJsonFormatter(),
+    path: Path.Combine(AppContext.BaseDirectory, "logs", "log.jsonl"),
+    rollingInterval: RollingInterval.Day
+  )
+  .Enrich.FromLogContext()
+  .MinimumLevel.Verbose()
+  .MinimumLevel.Override("Microsoft", LogEventLevel.Fatal)
+  .CreateLogger();
 
-using Microsoft.ML.OnnxRuntime;
-using Microsoft.ML.OnnxRuntime.Tensors;
+try
+{
+  var appName = Assembly.GetExecutingAssembly().GetName().Name;
+  Log.Information("Starting {AppName}", appName);
 
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Png;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
+  await Host.CreateDefaultBuilder()
+    .ConfigureLogging(static logging => logging.ClearProviders())
+    .ConfigureServices(static (_, services) =>
+    {
+      services.AddSerilog();
+      services.AddSingleton<IResourceManager, ResourceManager>();
+    })
+    .BuildApp()
+    .RunAsync(args);
+
+  Log.Information("Stopping {AppName}", appName);
+}
+catch (Exception ex)
+{
+  Log.Fatal(ex, "Application terminated unexpectedly");
+  throw;
+}
+finally
+{
+  await Log.CloseAndFlushAsync();
+}
 
 if (args.Length < 1)
 {
@@ -21,13 +49,13 @@ var outputImagePath = Path.ChangeExtension(inputImagePath, null) + "_no_bg.png";
 try
 {
   var assembly = Assembly.GetExecutingAssembly();
-  var resourceName = "BGR.Console.u2net.onnx";
+  var resourceName = "BGR.Console.Resources.Files.rmbg.onnx";
 
   using var stream = assembly.GetManifestResourceStream(resourceName) ?? throw new FileNotFoundException("Model not found in embedded resources.");
   var modelBytes = new byte[stream.Length];
   stream.ReadExactly(modelBytes);
 
-  using var image = Image.Load<Rgba32>(inputImagePath);
+  using var image = await Image.LoadAsync<Rgba32>(inputImagePath);
   var inputTensor = CreateTensorInput(image);
 
   using var options = new SessionOptions() { LogSeverityLevel = OrtLoggingLevel.ORT_LOGGING_LEVEL_ERROR };
@@ -46,8 +74,8 @@ try
 
   var encoder = new PngEncoder { CompressionLevel = PngCompressionLevel.BestCompression };
 
-  mask.Save(maskImagePath, encoder);
-  bgRemoved.Save(outputImagePath, encoder);
+  await mask.SaveAsync(maskImagePath, encoder);
+  await bgRemoved.SaveAsync(outputImagePath, encoder);
 
   Console.WriteLine($"Background removed and saved to {outputImagePath}");
 }
@@ -57,11 +85,11 @@ catch (Exception ex)
   throw;
 }
 
-static DenseTensor<float> CreateTensorInput(Image<Rgba32> image)
+static Tensor<float> CreateTensorInput(Image<Rgba32> image)
 {
   // U2Net expects input images to be 320x320. This is dependent on the model.
-  const int targetWidth = 320;
-  const int targetHeight = 320;
+  const int targetWidth = 1024;
+  const int targetHeight = 1024;
 
   // ImageNet normalization parameters
   // source:
@@ -204,4 +232,3 @@ static void WalkImage(int height, int width, Action<int, int> action)
     }
   }
 }
-
