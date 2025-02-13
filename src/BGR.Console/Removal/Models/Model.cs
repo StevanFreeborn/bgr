@@ -11,18 +11,28 @@ internal abstract class Model
   public abstract float RedNormalizationStd { get; }
   public abstract float GreenNormalizationStd { get; }
   public abstract float BlueNormalizationStd { get; }
+  public byte[] Bytes { get; } = [];
 
-  public float NormalizeRed(float value)
+  internal Model()
+  {
+  }
+
+  protected Model(byte[] modelBytes)
+  {
+    Bytes = modelBytes;
+  }
+
+  public virtual float NormalizeRed(float value)
   {
     return Normalize(value, RedNormalizationMean, RedNormalizationStd);
   }
 
-  public float NormalizeGreen(float value)
+  public virtual float NormalizeGreen(float value)
   {
     return Normalize(value, GreenNormalizationMean, GreenNormalizationStd);
   }
 
-  public float NormalizeBlue(float value)
+  public virtual float NormalizeBlue(float value)
   {
     return Normalize(value, BlueNormalizationMean, BlueNormalizationStd);
   }

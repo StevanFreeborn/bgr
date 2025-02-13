@@ -1,4 +1,3 @@
-
 namespace BGR.Console.Resources;
 
 internal sealed class ResourceManager : IResourceManager

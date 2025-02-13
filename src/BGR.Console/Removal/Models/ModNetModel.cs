@@ -1,7 +1,8 @@
 namespace BGR.Console.Removal.Models;
 
-internal class ModNetModel : Model
+internal class ModNetModel(byte[] modelBytes) : Model(modelBytes)
 {
+  public const string Id = "modnet";
   public override int InputWidth => 512;
   public override int InputHeight => 512;
   public override float RedNormalizationMean => 0.485f;

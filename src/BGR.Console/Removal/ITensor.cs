@@ -6,4 +6,5 @@ internal interface ITensor<T>
   int Width { get; }
   void SetValue(int batch, int channel, int y, int x, T value);
   float GetValue(int batch, int channel, int y, int x);
+  Tensor<T> ToTensor();
 }

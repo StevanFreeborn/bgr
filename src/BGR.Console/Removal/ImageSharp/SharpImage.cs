@@ -1,19 +1,25 @@
 namespace BGR.Console.Removal.ImageSharp;
 
-internal class SharpImage(Image<Rgba32> image) : IImage
+internal class SharpImage : IImage
 {
-  private readonly Image<Rgba32> _image = image;
+  public int Width { get; }
+  public int Height { get; }
+  public Stream Data { get; }
 
-  public int Width => _image.Width;
-  public int Height => _image.Height;
-
-  public void Resize(int width, int height)
+  public SharpImage(int width, int height, Stream data)
   {
-    _image.Mutate(x => x.Resize(width, height));
-  }
+    if (width <= 0)
+    {
+      throw new ArgumentOutOfRangeException(nameof(width), "must be greater than 0");
+    }
 
-  public IPixel GetPixel(int x, int y)
-  {
-    return new SharpPixel(_image[x, y]);
+    if (height <= 0)
+    {
+      throw new ArgumentOutOfRangeException(nameof(height), "must be greater than 0");
+    }
+
+    Width = width;
+    Height = height;
+    Data = data ?? throw new ArgumentNullException(nameof(data));
   }
 }

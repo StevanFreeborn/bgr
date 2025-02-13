@@ -1,8 +1,8 @@
-
 namespace BGR.Console.Removal.Models;
 
-internal class RmbgModel : Model
+internal class RmbgModel(byte[] modelBytes) : Model(modelBytes)
 {
+  public const string Id = "rmbg";
   public override int InputWidth => 1024;
   public override int InputHeight => 1024;
   public override float RedNormalizationMean => 0.485f;

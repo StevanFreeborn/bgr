@@ -2,9 +2,26 @@ namespace BGR.Console.Removal.ImageSharp;
 
 internal class ImageSharpProcessor : ImageProcessor
 {
+  public override async Task<IImage> LoadImageAsync(string path)
+  {
+    var image = await Image.LoadAsync<Rgba32>(path);
+
+    if (image.Metadata.DecodedImageFormat is null)
+    {
+      throw new InvalidOperationException("Image format is not supported.");
+    }
+
+    var stream = new MemoryStream();
+    await image.SaveAsync(stream, image.Metadata.DecodedImageFormat);
+    stream.Position = 0;
+
+    return new SharpImage(image.Width, image.Height, stream);
+  }
+
   public override async Task<ITensor<float>> CreateTensorInputAsync(Stream image, Model model)
   {
     using var resized = await Image.LoadAsync<Rgba32>(image);
+
     resized.Mutate(x => x.Resize(model.InputWidth, model.InputHeight));
 
     const int batchSize = 1;
@@ -22,7 +39,7 @@ internal class ImageSharpProcessor : ImageProcessor
     return tensor;
   }
 
-  public override async Task<Stream> GenerateMaskAsync(OnnxTensor maskTensor, int width, int height)
+  public override async Task<Stream> GenerateMaskAsync(ITensor<float> maskTensor, int width, int height)
   {
     using var mask = new Image<Rgba32>(width, height);
 
@@ -45,12 +62,16 @@ internal class ImageSharpProcessor : ImageProcessor
 
     var stream = new MemoryStream();
     await mask.SaveAsync(stream, new PngEncoder());
+    stream.Position = 0;
 
     return stream;
   }
 
   public override async Task<Stream> RemoveBackgroundAsync(Stream image, Stream mask)
   {
+    image.Position = 0;
+    mask.Position = 0;
+
     var imageWithBg = await Image.LoadAsync<Rgba32>(image);
     var maskImage = await Image.LoadAsync<Rgba32>(mask);
     using var imageWithBgRemoved = new Image<Rgba32>(imageWithBg.Width, imageWithBg.Height);
@@ -72,7 +93,16 @@ internal class ImageSharpProcessor : ImageProcessor
 
     var result = new MemoryStream();
     await imageWithBgRemoved.SaveAsync(result, new PngEncoder());
+    result.Position = 0;
+
     return result;
+  }
+
+  public override async Task SaveImageAsync(Stream image, string path)
+  {
+    image.Position = 0;
+    var img = await Image.LoadAsync<Rgba32>(image);
+    await img.SaveAsync(path, new PngEncoder());
   }
 
   private static float Normalize(float value)

@@ -1,7 +1,8 @@
 namespace BGR.Console.Removal.Models;
 
-internal class U2NetModel : Model
+internal class U2NetModel(byte[] modelBytes) : Model(modelBytes)
 {
+  public const string Id = "u2net";
   public override int InputWidth => 320;
   public override int InputHeight => 320;
   public override float RedNormalizationMean => 0.485f;
