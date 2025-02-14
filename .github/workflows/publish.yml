@@ -1,0 +1,103 @@
+name: publish_and_release
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+      - "**/README.md"
+      - "**/.gitignore"
+      - "**/.gitaltributes"
+      - "**/.editorconfig"
+      - "**/LICENSE.txt"
+      - .github/**
+      - src/BGR.Console.Tests/**
+    branches:
+      - main
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+          token: ${{ secrets.ACTIONS_PAT }}
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.x
+      - name: Install versionize
+        run: dotnet tool install --global Versionize
+      - name: Setup git
+        run: |
+          git config --local user.email "65925598+StevanFreeborn@users.noreply.github.com"
+          git config --local user.name "Stevan Freeborn"
+      - name: Run versionize
+        id: versionize
+        run: versionize -i --exit-insignificant-commits --workingDir ./src/BGR.Console --commit-suffix "[skip ci]"
+        continue-on-error: true
+      - name: Upload changelog
+        if: steps.versionize.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: change-log
+          path: src/BGR.Console/CHANGELOG.md
+      - name: Push changes to GitHub
+        if: steps.versionize.outcome == 'success'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.ACTIONS_PAT }}
+          branch: ${{ github.ref }}
+          tags: true
+    outputs:
+      is_new_version: ${{ steps.versionize.outcome == 'success' }}
+  publish:
+    needs: [version]
+    if: needs.version.outputs.is_new_version == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+          ref: ${{ github.ref }}
+          token: ${{ secrets.ACTIONS_PAT }}
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.x
+      - name: Publish for mac-os
+        run: dotnet publish src/BGR.Console/BGR.Console.csproj -c Release -r osx-x64 --self-contained -o dist/mac-os
+      - name: Rename mac-os binary
+        run: mv dist/mac-os/BGR.Console dist/bgr_osx_x64
+      - name: Publish for linux-os
+        run: dotnet publish src/BGR.Console/BGR.Console.csproj -c Release -r linux-x64 --self-contained -o dist/linux-os
+      - name: Rename linux-os binary
+        run: mv dist/linux-os/BGR.Console dist/bgr_linux_x64
+      - name: Publish for windows-os
+        run: dotnet publish src/BGR.Console/BGR.Console.csproj -c Release -r win-x64 --self-contained -o dist/windows-os
+      - name: Rename windows-os binary
+        run: mv dist/windows-os/BGR.Console.exe dist/bgr_windows_x64.exe
+      - name: Get project version
+        uses: kzrnm/get-net-sdk-project-versions-action@v1
+        id: get-version
+        with:
+          proj-path: src/BGR.Console/BGR.Console.csproj
+      - name: Download changlog
+        uses: actions/download-artifact@v4
+        with:
+          name: change-log
+          path: src/BGR.Console
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          token: ${{ secrets.ACTIONS_PAT }}
+          name: bgr v${{ steps.get-version.outputs.version }}
+          tag_name: v${{ steps.get-version.outputs.version }}
+          draft: false
+          body_path: src/BGR.Console/CHANGELOG.md
+          files: |
+            dist/bgr_osx_x64
+            dist/bgr_linux_x64
+            dist/bgr_windows_x64.exe

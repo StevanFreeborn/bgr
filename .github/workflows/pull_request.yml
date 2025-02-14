@@ -1,0 +1,107 @@
+name: Pull Request
+on:
+  workflow_dispatch:
+  pull_request:
+    paths-ignore:
+      - "**/README.md"
+      - "**/LICENSE.txt"
+      - "**/.gitignore"
+      - "**/.gitattributes"
+      - "**/.editorconfig"
+      - .github/**
+    branches:
+      - main
+jobs:
+  format:
+    name: Run dotnet format
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+          token: ${{ secrets.ACTIONS_PAT }}
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.x.x
+      - name: Format project
+        run: dotnet format src --verbosity normal
+      - name: Commit Changes
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "<>"
+          if [[ $(git status --porcelain) ]]; then
+            git add .
+            git commit -m "chore: format fixes [skip ci]"
+            git fetch origin
+            git pull --rebase origin ${{ github.head_ref }}
+            git push origin HEAD:${{ github.head_ref }}
+          fi
+  test:
+    name: Test
+    needs: format
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+          token: ${{ secrets.ACTIONS_PAT }}
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.x
+      - name: Install report generator
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool
+      - name: Restore dependencies
+        run: dotnet restore src
+      - name: Build on ${{ matrix.os }}
+        run: dotnet build src --no-restore
+      - name: Test on ${{ matrix.os }}
+        run: dotnet test src --no-build --verbosity normal
+      - name: Rename test coverage report
+        run: mv src/BGR.Console.Tests/TestResults/Coverage/coverage.cobertura.xml src/BGR.Console.Tests/TestResults/Coverage/${{ matrix.os }}-coverage.cobertura.xml
+      - name: Upload test coverage report for ${{ matrix.os }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-coverage-${{ matrix.os }}
+          path: src/BGR.Console.Tests/TestResults/Coverage/${{ matrix.os }}-coverage.cobertura.xml
+  upload_test_coverage:
+    name: Upload Test Coverage
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+          token: ${{ secrets.ACTIONS_PAT }}
+      - name: Download ubuntu-latest report
+        uses: actions/download-artifact@v4
+        with:
+          name: test-coverage-ubuntu-latest
+          path: ./coverage
+      - name: Download windows-latest report
+        uses: actions/download-artifact@v4
+        with:
+          name: test-coverage-windows-latest
+          path: ./coverage
+      - name: Download macos-latest report
+        uses: actions/download-artifact@v4
+        with:
+          name: test-coverage-macos-latest
+          path: ./coverage
+      - name: Upload test coverage reports
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
