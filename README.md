@@ -15,7 +15,7 @@ This is a background removal app that uses machine learning models to remove the
 The app is meant to be run from the command line. For example:
 
 ```pwsh
-bgr /path/to/image.jpg --output /path/to/output.jpg
+bgr /path/to/image.jpg --output /path/to/output.png
 ```
 
 You can find the full list of commands, arguments, and options using the `--help` option:
