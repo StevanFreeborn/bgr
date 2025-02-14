@@ -21,20 +21,11 @@
 
     <MakeDir Directories="$(DownloadDirectory)" Condition="!Exists('$(DownloadDirectory)')" />
 
-    <Exec
-      Condition="!Exists('$(DownloadDirectory)/rmbg.onnx')"
-      Command="curl -L &quot;https://share.stevanfreeborn.com/bgr/rmbg.onnx&quot; -o &quot;$(DownloadDirectory)/rmbg.onnx&quot;"
-    />
+    <Exec Condition="!Exists('$(DownloadDirectory)/rmbg.onnx')" Command="curl -L &quot;https://share.stevanfreeborn.com/bgr/rmbg.onnx&quot; -o &quot;$(DownloadDirectory)/rmbg.onnx&quot;" />
 
-    <Exec
-      Condition="!Exists('$(DownloadDirectory)/u2net.onnx')"
-      Command="curl -L &quot;https://share.stevanfreeborn.com/bgr/u2net.onnx&quot; -o &quot;$(DownloadDirectory)/u2net.onnx&quot;"
-    />
+    <Exec Condition="!Exists('$(DownloadDirectory)/u2net.onnx')" Command="curl -L &quot;https://share.stevanfreeborn.com/bgr/u2net.onnx&quot; -o &quot;$(DownloadDirectory)/u2net.onnx&quot;" />
 
-    <Exec
-      Condition="!Exists('$(DownloadDirectory)/modnet.onnx')"
-      Command="curl -L &quot;https://share.stevanfreeborn.com/bgr/modnet.onnx&quot; -o &quot;$(DownloadDirectory)/modnet.onnx&quot;"
-    />
+    <Exec Condition="!Exists('$(DownloadDirectory)/modnet.onnx')" Command="curl -L &quot;https://share.stevanfreeborn.com/bgr/modnet.onnx&quot; -o &quot;$(DownloadDirectory)/modnet.onnx&quot;" />
 
     <ItemGroup>
       <EmbeddedResource Include="Resources\Files\**\*" />
