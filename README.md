@@ -1,15 +1,9 @@
 [![codecov](https://codecov.io/gh/StevanFreeborn/bgr/graph/badge.svg?token=5qp2LpvOZA)](https://codecov.io/gh/StevanFreeborn/bgr)
-
 [![Pull Request](https://github.com/StevanFreeborn/bgr/actions/workflows/pull_request.yml/badge.svg)](https://github.com/StevanFreeborn/bgr/actions/workflows/pull_request.yml)
-
 [![Publish](https://github.com/StevanFreeborn/bgr/actions/workflows/publish.yml/badge.svg)](https://github.com/StevanFreeborn/bgr/actions/workflows/publish.yml)
-
 ![GitHub Release](https://img.shields.io/github/v/release/StevanFreeborn/bgr?display_name=tag)
-
 ![GitHub License](https://img.shields.io/github/license/StevanFreeborn/bgr)
-
 [![semantic-release: angular](https://img.shields.io/badge/semantic--release-angular-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
-
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/StevanFreeborn/bgr/total)
 
 # BGR
