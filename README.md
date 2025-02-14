@@ -8,7 +8,7 @@
 
 # BGR
 
-This is a background removal app that uses machine learning models to remove the background from an image. The app is available for download [here](https://github.com/StevanFreeborn/bgr/releases). You'll just need to unzip the files, place them in a directory, and it to your path. You can rename the executable to your preferred name. The app can also be built from source using the [.NET SDK](https://dotnet.microsoft.com/download). If you'd like to read more about the idea and initial development behind the app you can read the blog post I wrote about it [here](https://blog.stevanfreeborn.com/building-a-background-removal-app-with-machine-learning-and-dotnet).
+This is a background removal app that uses machine learning models to remove the background from an image. The app is available for download [here](https://github.com/StevanFreeborn/bgr/releases). You'll just need to unzip the files, place them in a directory, and add it to your PATH. You can rename the executable to your preferred name. The app can also be built from source using the [.NET SDK](https://dotnet.microsoft.com/download). If you'd like to read more about the idea and initial development behind the app you can read the blog post I wrote about it [here](https://blog.stevanfreeborn.com/building-a-background-removal-app-with-machine-learning-and-dotnet).
 
 ## Usage
 
