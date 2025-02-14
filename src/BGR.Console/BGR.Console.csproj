@@ -12,6 +12,35 @@
     <OutputType>Exe</OutputType>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <DownloadDirectory>Resources/Files</DownloadDirectory>
+  </PropertyGroup>
+
+  <Target Name="DownloadModels" BeforeTargets="PrepareForBuild">
+    <Message Text="Downloading models..." Importance="high" />
+
+    <MakeDir Directories="$(DownloadDirectory)" Condition="!Exists('$(DownloadDirectory)')" />
+
+    <Exec
+      Condition="!Exists('$(DownloadDirectory)/rmbg.onnx')"
+      Command="curl -L &quot;https://share.stevanfreeborn.com/bgr/rmbg.onnx&quot; -o &quot;$(DownloadDirectory)/rmbg.onnx&quot;"
+    />
+
+    <Exec
+      Condition="!Exists('$(DownloadDirectory)/u2net.onnx')"
+      Command="curl -L &quot;https://share.stevanfreeborn.com/bgr/u2net.onnx&quot; -o &quot;$(DownloadDirectory)/u2net.onnx&quot;"
+    />
+
+    <Exec
+      Condition="!Exists('$(DownloadDirectory)/modnet.onnx')"
+      Command="curl -L &quot;https://share.stevanfreeborn.com/bgr/modnet.onnx&quot; -o &quot;$(DownloadDirectory)/modnet.onnx&quot;"
+    />
+
+    <ItemGroup>
+      <EmbeddedResource Include="Resources\Files\**\*" />
+    </ItemGroup>
+  </Target>
+
   <ItemGroup>
     <InternalsVisibleTo Include="$(AssemblyName).Tests" />
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
@@ -29,10 +58,6 @@
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.6" />
     <PackageReference Include="Spectre.Console" Version="0.49.1" />
     <PackageReference Include="Spectre.Console.Cli" Version="0.49.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\Files\**\*" />
   </ItemGroup>
 
 </Project>

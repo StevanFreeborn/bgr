@@ -6,7 +6,6 @@ on:
       - "**/README.md"
       - "**/LICENSE.md"
       - "**/.gitignore"
-      - "**/.gitattributes"
       - "**/.editorconfig"
       - .github/**
     branches:
@@ -21,7 +20,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          lfs: true
           fetch-depth: 0
           token: ${{ secrets.ACTIONS_PAT }}
       - name: Setup .NET
@@ -53,7 +51,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          lfs: true
           fetch-depth: 0
           token: ${{ secrets.ACTIONS_PAT }}
       - name: Setup .NET 9
@@ -65,7 +62,7 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore src
       - name: Build on ${{ matrix.os }}
-        run: dotnet build src --no-restore
+        run: dotnet build --no-restore src
       - name: Test on ${{ matrix.os }}
         run: dotnet test src --no-build --verbosity normal
       - name: Rename test coverage report
@@ -83,7 +80,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          lfs: true
           fetch-depth: 0
           token: ${{ secrets.ACTIONS_PAT }}
       - name: Download ubuntu-latest report
