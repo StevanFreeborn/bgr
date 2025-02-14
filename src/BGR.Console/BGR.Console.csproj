@@ -1,6 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AssemblyTitle>BGR.Console</AssemblyTitle>
+    <Product>BGR.Console</Product>
+    <Description>A command-line app for removing backgrounds from images.</Description>
+    <Version>0.0.0</Version>
+    <Authors>Stevan Freeborn</Authors>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <PublishReadyToRun>true</PublishReadyToRun>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
 
