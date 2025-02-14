@@ -6,7 +6,6 @@ on:
       - "**/README.md"
       - "**/LICENSE.md"
       - "**/.gitignore"
-      - "**/.gitattributes"
       - "**/.editorconfig"
       - .github/**
     branches:
