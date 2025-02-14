@@ -43,7 +43,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-lts, windows-lts, macos-lts]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
@@ -74,20 +74,20 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Download ubuntu-lts report
+      - name: Download ubuntu-latest report
         uses: actions/download-artifact@v4
         with:
-          name: test-coverage-ubuntu-lts
+          name: test-coverage-ubuntu-latest
           path: ./coverage
-      - name: Download windows-lts report
+      - name: Download windows-latest report
         uses: actions/download-artifact@v4
         with:
-          name: test-coverage-windows-lts
+          name: test-coverage-windows-latest
           path: ./coverage
-      - name: Download macos-lts report
+      - name: Download macos-latest report
         uses: actions/download-artifact@v4
         with:
-          name: test-coverage-macos-lts
+          name: test-coverage-macos-latest
           path: ./coverage
       - name: Upload test coverage reports
         uses: codecov/codecov-action@v4
