@@ -6,6 +6,9 @@
 # dotenv files
 .env
 
+# model files
+*.onnx
+
 # User-specific files
 *.rsuser
 *.suo
