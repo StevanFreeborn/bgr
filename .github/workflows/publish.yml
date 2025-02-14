@@ -19,6 +19,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          lfs: true
           fetch-depth: 0
           token: ${{ secrets.ACTIONS_PAT }}
       - name: Setup .NET 9
@@ -58,6 +59,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          lfs: true
           fetch-depth: 0
           ref: ${{ github.ref }}
           token: ${{ secrets.ACTIONS_PAT }}

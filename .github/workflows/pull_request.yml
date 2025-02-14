@@ -20,6 +20,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+          token: ${{ secrets.ACTIONS_PAT }}
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -48,6 +52,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+          token: ${{ secrets.ACTIONS_PAT }}
       - name: Setup .NET 9
         uses: actions/setup-dotnet@v4
         with:
@@ -74,6 +82,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+          token: ${{ secrets.ACTIONS_PAT }}
       - name: Download ubuntu-latest report
         uses: actions/download-artifact@v4
         with:
