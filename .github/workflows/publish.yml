@@ -1,4 +1,4 @@
-name: publish_and_release
+name: Publish
 on:
   workflow_dispatch:
   push:
@@ -7,7 +7,7 @@ on:
       - "**/.gitignore"
       - "**/.gitaltributes"
       - "**/.editorconfig"
-      - "**/LICENSE.txt"
+      - "**/LICENSE.md"
       - .github/**
       - src/BGR.Console.Tests/**
     branches:
