@@ -64,18 +64,20 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.x
+      - name: Build
+        run: dotnet build src
       - name: Publish for mac-os
         run: dotnet publish src/BGR.Console/BGR.Console.csproj -c Release -r osx-x64 --self-contained -o dist/mac-os
-      - name: Rename mac-os binary
-        run: mv dist/mac-os/BGR.Console dist/bgr_osx_x64
+      - name: Create zip for mac-os
+        run: zip -j dist/bgr_osx_x64.zip dist/mac-os/*
       - name: Publish for linux-os
         run: dotnet publish src/BGR.Console/BGR.Console.csproj -c Release -r linux-x64 --self-contained -o dist/linux-os
-      - name: Rename linux-os binary
-        run: mv dist/linux-os/BGR.Console dist/bgr_linux_x64
+      - name: Create zip for linux-os
+        run: zip -j dist/bgr_linux_x64.zip dist/linux-os/*
       - name: Publish for windows-os
         run: dotnet publish src/BGR.Console/BGR.Console.csproj -c Release -r win-x64 --self-contained -o dist/windows-os
-      - name: Rename windows-os binary
-        run: mv dist/windows-os/BGR.Console.exe dist/bgr_windows_x64.exe
+      - name: Create zip for windows-os
+        run: zip -j dist/bgr_windows_x64.zip dist/windows-os/*
       - name: Get project version
         uses: kzrnm/get-net-sdk-project-versions-action@v1
         id: get-version
@@ -95,6 +97,6 @@ jobs:
           draft: false
           body_path: src/BGR.Console/CHANGELOG.md
           files: |
-            dist/bgr_osx_x64
-            dist/bgr_linux_x64
-            dist/bgr_windows_x64.exe
+            dist/bgr_osx_x64.zip
+            dist/bgr_linux_x64.zip
+            dist/bgr_windows_x64.zip
