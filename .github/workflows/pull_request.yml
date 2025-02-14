@@ -64,6 +64,8 @@ jobs:
         run: dotnet restore src
       - name: Build on ${{ matrix.os }}
         run: dotnet build src --no-restore
+      - name: List downloaded models
+        run: ls -l src/BGR.Console/Resources/Files
       - name: Test on ${{ matrix.os }}
         run: dotnet test src --no-build --verbosity normal
       - name: Rename test coverage report
