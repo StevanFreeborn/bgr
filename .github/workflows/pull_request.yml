@@ -63,6 +63,13 @@ jobs:
         run: dotnet restore src
       - name: Build on ${{ matrix.os }}
         run: dotnet build --no-restore src
+      - name: Diagnose downloaded model files
+        run: |
+          echo "=== Model file sizes ==="
+          dir src/BGR.Console\Resources\Files\*.onnx 2>/dev/null || ls -la src/BGR.Console/Resources/Files/*.onnx 2>/dev/null || echo "No model files found"
+          echo ""
+          echo "=== File types ==="
+          file src/BGR.Console/Resources/Files/*.onnx 2>/dev/null || echo "file command not available"
       - name: Test on ${{ matrix.os }}
         run: dotnet test src --no-build --verbosity normal
       - name: Rename test coverage report
