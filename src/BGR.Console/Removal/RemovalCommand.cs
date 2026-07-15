@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace BGR.Console.Removal;
 
 internal class RemovalCommand(
@@ -16,7 +14,19 @@ internal class RemovalCommand(
   private readonly IAnsiConsole _console = console;
   private readonly ILogger<RemovalCommand> _logger = logger;
 
-  public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
+  public async Task<int> ExecuteAsync(
+    CommandContext context,
+    Settings settings
+  )
+  {
+    return await ExecuteAsync(context, settings, CancellationToken.None);
+  }
+
+  protected override async Task<int> ExecuteAsync(
+    CommandContext context,
+    Settings settings,
+    CancellationToken cancellationToken
+  )
   {
     await _console.Status()
       .Spinner(Spinner.Known.Dots)

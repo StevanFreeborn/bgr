@@ -1,6 +1,4 @@
-using Microsoft.Extensions.Logging;
-
-using Spectre.Console.Cli;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BGR.Console.Tests.Unit;
 
@@ -28,6 +26,7 @@ public class RemovalCommandTests : IDisposable
   [Theory]
   [InlineData("output.png", false)]
   [InlineData("", true)]
+  [SuppressMessage("Reliability", "CA2025:Do not pass 'IDisposable' instances into unawaited tasks", Justification = "Matching invocations")]
   public async Task ExecuteAsync_WhenCalled_ItShouldProcessImage(string outputPath, bool includeMask)
   {
     var imagePath = $"{Guid.NewGuid()}.png";
