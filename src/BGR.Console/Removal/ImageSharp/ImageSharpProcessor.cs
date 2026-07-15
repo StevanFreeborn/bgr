@@ -123,11 +123,17 @@ internal class ImageSharpProcessor : ImageProcessor
   private static byte AdjustAlpha(byte maskValue, byte minVal, byte maxVal)
   {
     if (maskValue <= minVal)
+    {
       return 0;
-    if (maskValue >= maxVal)
-      return 255;
+    }
 
-    float proportion = (maskValue - minVal) / (float)(maxVal - minVal);
+    if (maskValue >= maxVal)
+    {
+      return 255;
+    }
+
+    var proportion = (maskValue - minVal) / (float)(maxVal - minVal);
+
     return (byte)(proportion * 255f);
   }
 }
