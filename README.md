@@ -34,6 +34,21 @@ bgr --help
 
 ![Output Image](examples/output.png)
 
+### Feathering Options
+
+By default, BGR applies feathering to create smooth transitions between the foreground and background, reducing harsh edges and halos. You can control the feathering range using two options:
+
+- `--feather-min` - Mask values below this threshold become fully transparent. Default: `70`
+- `--feather-max` - Mask values above this threshold become fully opaque. Default: `117`
+
+Values between `feather-min` and `feather-max` are linearly scaled to produce partial transparency, creating a smooth gradient at edges.
+
+```pwsh
+bgr /path/to/image.jpg --feather-min 60 --feather-max 130
+```
+
+A wider range (e.g., `50` to `150`) produces softer edges, while a narrower range (e.g., `90` to `100`) produces sharper edges.
+
 ## Issues
 
 If you encounter any issues while using the app, please open an issue on the repository. If you have any suggestions or feature requests, feel free to open an issue as well.

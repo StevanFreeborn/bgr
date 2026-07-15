@@ -1,6 +1,6 @@
 namespace BGR.Console.Removal.Onnx;
 
-public class OnnxTensor : ITensor<float>
+internal class OnnxTensor : ITensor<float>
 {
   private readonly Tensor<float> _tensor;
 

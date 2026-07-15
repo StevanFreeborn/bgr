@@ -1,5 +1,3 @@
-using BGR.Console.Removal.Onnx;
-
 using Microsoft.ML.OnnxRuntime.Tensors;
 
 namespace BGR.Console.Tests.Unit;

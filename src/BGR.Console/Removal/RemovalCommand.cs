@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace BGR.Console.Removal;
 
 internal class RemovalCommand(
@@ -16,7 +14,19 @@ internal class RemovalCommand(
   private readonly IAnsiConsole _console = console;
   private readonly ILogger<RemovalCommand> _logger = logger;
 
-  public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
+  public async Task<int> ExecuteAsync(
+    CommandContext context,
+    Settings settings
+  )
+  {
+    return await ExecuteAsync(context, settings, CancellationToken.None);
+  }
+
+  protected override async Task<int> ExecuteAsync(
+    CommandContext context,
+    Settings settings,
+    CancellationToken cancellationToken
+  )
   {
     await _console.Status()
       .Spinner(Spinner.Known.Dots)
@@ -56,7 +66,7 @@ internal class RemovalCommand(
         ctx.Status("Removing background...");
         var output = await _logger.TimeAndLogActionAsync(
           "Removing background",
-          async () => await _imageProcessor.RemoveBackgroundAsync(image.Data, mask)
+          async () => await _imageProcessor.RemoveBackgroundAsync(image.Data, mask, settings.FeatherMin, settings.FeatherMax)
         );
 
         if (settings.IncludeMask)
@@ -104,6 +114,14 @@ internal class RemovalCommand(
     [CommandOption("--output|-o")]
     [Description("Path to output image without background to. File extension will always be .png")]
     public string Output { get; init; } = string.Empty;
+
+    [CommandOption("--feather-min")]
+    [Description("Minimum mask value below which pixels become fully transparent (default: 70)")]
+    public byte FeatherMin { get; init; } = 70;
+
+    [CommandOption("--feather-max")]
+    [Description("Maximum mask value above which pixels become fully opaque (default: 117)")]
+    public byte FeatherMax { get; init; } = 117;
 
     public string ResourceName => Models[Model];
 

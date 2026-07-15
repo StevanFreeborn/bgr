@@ -18,14 +18,14 @@ jobs:
       contents: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           token: ${{ secrets.ACTIONS_PAT }}
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 9.x.x
+          dotnet-version: 10.x.x
       - name: Format project
         run: dotnet format src --verbosity normal
       - name: Commit Changes
@@ -49,14 +49,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           token: ${{ secrets.ACTIONS_PAT }}
-      - name: Setup .NET 9
-        uses: actions/setup-dotnet@v4
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 9.x
+          dotnet-version: 10.x
       - name: Install report generator
         run: dotnet tool install --global dotnet-reportgenerator-globaltool
       - name: Restore dependencies
@@ -68,7 +68,7 @@ jobs:
       - name: Rename test coverage report
         run: mv src/BGR.Console.Tests/TestResults/Coverage/coverage.cobertura.xml src/BGR.Console.Tests/TestResults/Coverage/${{ matrix.os }}-coverage.cobertura.xml
       - name: Upload test coverage report for ${{ matrix.os }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-coverage-${{ matrix.os }}
           path: src/BGR.Console.Tests/TestResults/Coverage/${{ matrix.os }}-coverage.cobertura.xml
@@ -78,26 +78,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           token: ${{ secrets.ACTIONS_PAT }}
       - name: Download ubuntu-latest report
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: test-coverage-ubuntu-latest
           path: ./coverage
       - name: Download windows-latest report
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: test-coverage-windows-latest
           path: ./coverage
       - name: Download macos-latest report
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: test-coverage-macos-latest
           path: ./coverage
       - name: Upload test coverage reports
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}

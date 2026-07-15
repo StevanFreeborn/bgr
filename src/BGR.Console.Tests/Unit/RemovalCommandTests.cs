@@ -1,6 +1,4 @@
-using Microsoft.Extensions.Logging;
-
-using Spectre.Console.Cli;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BGR.Console.Tests.Unit;
 
@@ -28,6 +26,7 @@ public class RemovalCommandTests : IDisposable
   [Theory]
   [InlineData("output.png", false)]
   [InlineData("", true)]
+  [SuppressMessage("Reliability", "CA2025:Do not pass 'IDisposable' instances into unawaited tasks", Justification = "Matching invocations")]
   public async Task ExecuteAsync_WhenCalled_ItShouldProcessImage(string outputPath, bool includeMask)
   {
     var imagePath = $"{Guid.NewGuid()}.png";
@@ -73,7 +72,7 @@ public class RemovalCommandTests : IDisposable
       .ReturnsAsync(maskStream);
 
     _imageProcessorMock
-      .Setup(p => p.RemoveBackgroundAsync(image.Data, maskStream))
+      .Setup(p => p.RemoveBackgroundAsync(image.Data, maskStream, It.IsAny<byte>(), It.IsAny<byte>()))
       .ReturnsAsync(outputStream);
 
     var commandContext = new CommandContext(
@@ -92,7 +91,7 @@ public class RemovalCommandTests : IDisposable
     _imageProcessorMock.Verify(p => p.CreateTensorInputAsync(image.Data, model), Times.Once);
     _inferenceRunnerMock.Verify(r => r.Run(model.Bytes, inputTensor), Times.Once);
     _imageProcessorMock.Verify(p => p.GenerateMaskAsync(outputTensor, image.Width, image.Height), Times.Once);
-    _imageProcessorMock.Verify(p => p.RemoveBackgroundAsync(image.Data, maskStream), Times.Once);
+    _imageProcessorMock.Verify(p => p.RemoveBackgroundAsync(image.Data, maskStream, It.IsAny<byte>(), It.IsAny<byte>()), Times.Once);
     _imageProcessorMock.Verify(p => p.SaveImageAsync(outputStream, It.IsAny<string>()), Times.AtLeastOnce);
 
     File.Delete(imagePath);
