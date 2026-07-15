@@ -183,7 +183,10 @@ public class ImageSharpProcessorTests : IDisposable
     await mask.SaveAsPngAsync(maskStream);
     maskStream.Position = 0;
 
-    var result = await _sut.RemoveBackgroundAsync(imageStream, maskStream);
+    const byte featherMin = 70;
+    const byte featherMax = 117;
+
+    var result = await _sut.RemoveBackgroundAsync(imageStream, maskStream, featherMin, featherMax);
 
     result.ShouldNotBeNull();
     result.Length.ShouldBeGreaterThan(0);
@@ -201,6 +204,37 @@ public class ImageSharpProcessorTests : IDisposable
     resultImage[1, 0].A.ShouldBe((byte)255);
     resultImage[1, 1].R.ShouldBe((byte)255);
     resultImage[1, 1].A.ShouldBe((byte)255);
+  }
+
+  [Fact]
+  public async Task RemoveBackgroundAsync_WithMidRangeMaskValue_ShouldApplyPartialAlpha()
+  {
+    using var imageStream = new MemoryStream();
+    using var image = new Image<Rgba32>(1, 1);
+    image[0, 0] = new Rgba32(100, 150, 200, 255);
+    await image.SaveAsPngAsync(imageStream);
+    imageStream.Position = 0;
+
+    using var maskStream = new MemoryStream();
+    using var mask = new Image<Rgba32>(1, 1);
+    mask[0, 0] = new Rgba32(100, 100, 100, 255);
+    await mask.SaveAsPngAsync(maskStream);
+    maskStream.Position = 0;
+
+    const byte featherMin = 70;
+    const byte featherMax = 117;
+
+    var result = await _sut.RemoveBackgroundAsync(imageStream, maskStream, featherMin, featherMax);
+
+    result.Position = 0;
+    using var resultImage = await Image.LoadAsync<Rgba32>(result);
+
+    resultImage[0, 0].R.ShouldBe((byte)100);
+    resultImage[0, 0].G.ShouldBe((byte)150);
+    resultImage[0, 0].B.ShouldBe((byte)200);
+
+    var expectedAlpha = (byte)((100 - 70) / (float)(117 - 70) * 255f);
+    resultImage[0, 0].A.ShouldBe(expectedAlpha);
   }
 
   [Fact]

@@ -8,7 +8,7 @@ internal abstract class ImageProcessor
 
   public abstract Task<Stream> GenerateMaskAsync(ITensor<float> maskTensor, int width, int height);
 
-  public abstract Task<Stream> RemoveBackgroundAsync(Stream image, Stream mask);
+  public abstract Task<Stream> RemoveBackgroundAsync(Stream image, Stream mask, byte featherMin, byte featherMax);
 
   public abstract Task SaveImageAsync(Stream image, string path);
 

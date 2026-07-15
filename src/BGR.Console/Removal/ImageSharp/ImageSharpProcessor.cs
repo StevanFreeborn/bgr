@@ -67,7 +67,7 @@ internal class ImageSharpProcessor : ImageProcessor
     return stream;
   }
 
-  public override async Task<Stream> RemoveBackgroundAsync(Stream image, Stream mask)
+  public override async Task<Stream> RemoveBackgroundAsync(Stream image, Stream mask, byte featherMin, byte featherMax)
   {
     image.Position = 0;
     mask.Position = 0;
@@ -76,19 +76,14 @@ internal class ImageSharpProcessor : ImageProcessor
     var maskImage = await Image.LoadAsync<Rgba32>(mask);
     using var imageWithBgRemoved = new Image<Rgba32>(imageWithBg.Width, imageWithBg.Height);
 
-    const byte alphaThreshold = 20;
-    var transparentPixel = new Rgba32(0, 0, 0, 0);
-
     WalkImage(imageWithBg.Height, imageWithBg.Width, (x, y) =>
     {
       var sourcePixel = imageWithBg[x, y];
       var maskPixel = maskImage[x, y];
 
-      var alpha = maskPixel.R;
+      var alpha = AdjustAlpha(maskPixel.R, featherMin, featherMax);
 
-      imageWithBgRemoved[x, y] = alpha > alphaThreshold
-        ? new Rgba32(sourcePixel.R, sourcePixel.G, sourcePixel.B, sourcePixel.A)
-        : transparentPixel;
+      imageWithBgRemoved[x, y] = new Rgba32(sourcePixel.R, sourcePixel.G, sourcePixel.B, alpha);
     });
 
     var result = new MemoryStream();
@@ -107,12 +102,7 @@ internal class ImageSharpProcessor : ImageProcessor
 
   private static float Normalize(float value)
   {
-    const float binarizationThreshold = 0.5f;
-    const float normalizationFactor = 2f;
-
-    return value > binarizationThreshold
-        ? (value - binarizationThreshold) * normalizationFactor
-        : 0f;
+    return value * value;
   }
 
   private static byte ConvertToGreyscale(float value)
@@ -128,5 +118,16 @@ internal class ImageSharpProcessor : ImageProcessor
     const float sigmoidDivisor = -1f;
 
     return sigmoidScale / (sigmoidShift + MathF.Exp(sigmoidDivisor * x));
+  }
+
+  private static byte AdjustAlpha(byte maskValue, byte minVal, byte maxVal)
+  {
+    if (maskValue <= minVal)
+      return 0;
+    if (maskValue >= maxVal)
+      return 255;
+
+    float proportion = (maskValue - minVal) / (float)(maxVal - minVal);
+    return (byte)(proportion * 255f);
   }
 }
