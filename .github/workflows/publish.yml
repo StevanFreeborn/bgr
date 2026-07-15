@@ -16,14 +16,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           token: ${{ secrets.ACTIONS_PAT }}
-      - name: Setup .NET 9
-        uses: actions/setup-dotnet@v4
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 9.x
+          dotnet-version: 10.x
       - name: Install versionize
         run: dotnet tool install --global Versionize
       - name: Setup git
@@ -36,7 +36,7 @@ jobs:
         continue-on-error: true
       - name: Upload changelog
         if: steps.versionize.outcome == 'success'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: change-log
           path: src/BGR.Console/CHANGELOG.md
@@ -55,15 +55,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           ref: ${{ github.ref }}
           token: ${{ secrets.ACTIONS_PAT }}
-      - name: Setup .NET 9
-        uses: actions/setup-dotnet@v4
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 9.x
+          dotnet-version: 10.x
       - name: Build
         run: dotnet build src
       - name: Publish for mac-os
@@ -84,12 +84,12 @@ jobs:
         with:
           proj-path: src/BGR.Console/BGR.Console.csproj
       - name: Download changlog
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: change-log
           path: src/BGR.Console
       - name: Create release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           token: ${{ secrets.ACTIONS_PAT }}
           name: bgr v${{ steps.get-version.outputs.version }}
