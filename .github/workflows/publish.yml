@@ -32,8 +32,18 @@ jobs:
           git config --local user.name "Stevan Freeborn"
       - name: Run versionize
         id: versionize
-        run: versionize -i --exit-insignificant-commits --workingDir ./src/BGR.Console --commit-suffix "[skip ci]"
+        run: |
+          VERSION=$(versionize -i --exit-insignificant-commits --workingDir ./src/BGR.Console --commit-suffix "[skip ci]")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
         continue-on-error: true
+      - name: Ensure csproj version is updated
+        if: steps.versionize.outcome == 'success'
+        run: |
+          VERSION="${{ steps.versionize.outputs.version }}"
+          NUMERIC="${VERSION#v}"
+          sed -i "s|<Version>.*</Version>|<Version>${NUMERIC}</Version>|" src/BGR.Console/BGR.Console.csproj
+          git add src/BGR.Console/BGR.Console.csproj
+          git diff --cached --quiet || git commit --amend --no-edit
       - name: Upload changelog
         if: steps.versionize.outcome == 'success'
         uses: actions/upload-artifact@v7
@@ -49,6 +59,7 @@ jobs:
           tags: true
     outputs:
       is_new_version: ${{ steps.versionize.outcome == 'success' }}
+      version: ${{ steps.versionize.outputs.version }}
   publish:
     needs: [version]
     if: needs.version.outputs.is_new_version == 'true'
@@ -78,11 +89,6 @@ jobs:
         run: dotnet publish src/BGR.Console/BGR.Console.csproj -c Release -r win-x64 --self-contained -o dist/windows-os
       - name: Create zip for windows-os
         run: zip -j dist/bgr_windows_x64.zip dist/windows-os/*
-      - name: Get project version
-        uses: kzrnm/get-net-sdk-project-versions-action@v1
-        id: get-version
-        with:
-          proj-path: src/BGR.Console/BGR.Console.csproj
       - name: Download changlog
         uses: actions/download-artifact@v8
         with:
@@ -92,8 +98,8 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           token: ${{ secrets.ACTIONS_PAT }}
-          name: bgr v${{ steps.get-version.outputs.version }}
-          tag_name: v${{ steps.get-version.outputs.version }}
+          name: bgr ${{ needs.version.outputs.version }}
+          tag_name: ${{ needs.version.outputs.version }}
           draft: false
           body_path: src/BGR.Console/CHANGELOG.md
           files: |
